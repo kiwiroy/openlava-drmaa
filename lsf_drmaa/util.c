@@ -105,10 +105,12 @@ lsfdrmaa_free_job_info( struct jobInfoEnt *job_info )
 		offset( struct jobInfoEnt, execUsername ),
 		offset( struct jobInfoEnt, parentGroup ),
 		offset( struct jobInfoEnt, jName ),
+#ifndef OPENLAVA_VERSION
 		offset( struct jobInfoEnt, detailReason ),
 		offset( struct jobInfoEnt, additionalInfo ),
 		offset( struct jobInfoEnt, warningAction ),
 		offset( struct jobInfoEnt, chargedSAAP ),
+#endif	/* !OPENLAVA_VERSION */
 #if LSF_PRODUCT_MAJOR_VERSION >= 7
 		offset( struct jobInfoEnt, execRusage ),
 #endif
@@ -121,9 +123,11 @@ lsfdrmaa_free_job_info( struct jobInfoEnt *job_info )
 	for( i = 0;  i < job_info->numExHosts;  i++ )
 		fsd_free( job_info->exHosts[i] );
 	fsd_free( job_info->exHosts );
+#ifndef OPENLAVA_VERSION
 	for( i = 0;  i < job_info->numExternalMsg;  i++ )
 		fsd_free( job_info->externalMsg[i] );
 	fsd_free( job_info->externalMsg );
+#endif	/* !OPENLAVA_VERSION */
 #ifdef SUB2_LICENSE_PROJECT /* FIXME: is this correct? */
 	for( i = 0;  i < job_info->numLicense;  i++ )
 		fsd_free( job_info->licenseNames[i] );
@@ -147,7 +151,9 @@ lsfdrmaa_free_submit_req( struct submit *req, bool free_req )
 	  offset( struct submit, resReq ),
 	  offset( struct submit, hostSpec ),
 	  offset( struct submit, dependCond ),
+#ifndef OPENLAVA_VERSION
 	  offset( struct submit, timeEvent ),
+#endif	/* !OPENLAVA_VERSION */
 	  offset( struct submit, inFile ),
 	  offset( struct submit, outFile ),
 	  offset( struct submit, errFile ),
@@ -158,6 +164,7 @@ lsfdrmaa_free_submit_req( struct submit *req, bool free_req )
 	  offset( struct submit, mailUser ),
 	  offset( struct submit, projectName ),
 	  offset( struct submit, loginShell ),
+#ifndef OPENLAVA_VERSION
 	  offset( struct submit, userGroup ),
 	  offset( struct submit, exceptList ),
 	  offset( struct submit, rsvId ),
@@ -165,6 +172,7 @@ lsfdrmaa_free_submit_req( struct submit *req, bool free_req )
 	  offset( struct submit, sla ),
 	  offset( struct submit, extsched ),
 	  offset( struct submit, warningAction ),
+#endif	/* !OPENLAVA_VERSION */
 #ifdef SUB2_LICENSE_PROJECT
 	  offset( struct submit, licenseProject ),
 #endif
@@ -286,18 +294,30 @@ lsfdrmaa_dump_submit_req( struct submit *req )
 		fsd_log_debug(( "\n  userGroup: %s", req->userGroup ));
 	if( options2 & SUB2_JOB_PRIORITY )
 		fsd_log_debug(( "\n  userPriority: %d", req->userPriority ));
+#ifdef SUB2_USE_RSV
 	if( options2 & SUB2_USE_RSV )
 		fsd_log_debug(( "\n  rsvId: %s", req->rsvId ));
+#endif	/* SUB2_USE_RSV */
+#ifdef SUB2_JOB_GROUP
 	if( options2 & SUB2_JOB_GROUP )
 		fsd_log_debug(( "\n  jobGroup: %s", req->jobGroup ));
+#endif	/* SUB2_JOB_GROUP */
+#ifdef SUB2_SLA
 	if( options2 & SUB2_SLA )
 		fsd_log_debug(( "\n  sla: %s", req->sla ));
+#endif	/* SUB2_SLA */
+#ifdef SUB2_EXTSCHED
 	if( options2 & SUB2_EXTSCHED )
 		fsd_log_debug(( "\n  extsched: %s", req->extsched ));
+#endif	/* SUB2_EXTSCHED */
+#ifdef SUB2_WARNING_TIME_PERIOD
 	if( options2 & SUB2_WARNING_TIME_PERIOD )
 		fsd_log_debug(( "\n  warningTimePeriod: %d", req->warningTimePeriod ));
+#endif	/* SUB2_WARNING_TIME_PERIOD */
+#ifdef SUB2_WARNING_ACTION
 	if( options2 & SUB2_WARNING_ACTION )
 		fsd_log_debug(( "\n  warningAction: %s", req->warningAction ));
+#endif	/* SUB2_WARNING_ACTION */
 #ifdef SUB2_LICENSE_PROJECT
 	if( options2 & SUB2_LICENSE_PROJECT )
 		fsd_log_debug(( "\n  licenseProject: %s", req->licenseProject ));
@@ -362,6 +382,7 @@ lsfdrmaa_map_lsberrno( int _lsberrno )
 		case LSBE_BAD_JOBID:        /* Bad jobId */
 			return FSD_DRMAA_ERRNO_INVALID_JOB;
 
+
 		/* Job's inconsitnet state: */
 		case LSBE_NOT_STARTED:      /* Job not started yet */
 		case LSBE_JOB_STARTED:      /* Job already started */
@@ -371,14 +392,20 @@ lsfdrmaa_map_lsberrno( int _lsberrno )
 		case LSBE_J_UNCHKPNTABLE:   /* Job is not chkpntable */
 		case LSBE_J_UNREPETITIVE:   /* Job is not a repetitive job */
 		case LSBE_NO_OUTPUT:        /* Job has no output so far */
+#ifdef LSBE_PEND_CAL_JOB
 		case LSBE_PEND_CAL_JOB:     /* Job can not be killed in pending */
+#endif	/* LSBE_PEND_CAL_JOB */
+#ifdef LSBE_RUN_CAL_JOB
 		case LSBE_RUN_CAL_JOB:      /* This Running turn is being terminated */
+#endif	/* LSBE_RUN_CAL_JOB */
 		case LSBE_JOB_MODIFY:       /* The job's params cannot be changed */
 		case LSBE_JOB_MODIFY_ONCE:  /* The changed once parameters are not used */
 			return FSD_ERRNO_INTERNAL_ERROR;
 
+
 		case LSBE_DEPEND_SYNTAX:    /* Depend_cond syntax error */
 			return FSD_DRMAA_ERRNO_INVALID_ATTRIBUTE_FORMAT;
+
 
 		case LSBE_EXCLUSIVE:        /* Queue doesn't accept EXCLUSIVE job */
 		case LSBE_ROOT:             /* Root is not allowed to submit jobs */
@@ -390,7 +417,9 @@ lsfdrmaa_map_lsberrno( int _lsberrno )
 		case LSBE_QUEUE_WINDOW:     /* Queue windows are closed */
 		case LSBE_BAD_HOST:         /* Bad host name or host group name" */
 		case LSBE_PROC_NUM:         /* Too many processors requested */
+#ifdef LSBE_BAD_HPART
 		case LSBE_BAD_HPART:        /* Bad host partition name */
+#endif	/* LSBE_BAD_HPART */
 		case LSBE_BAD_GROUP:        /* Bad host/user group name */
 		case LSBE_QUEUE_HOST:       /* Host is not used by the queue */
 		case LSBE_UJOB_LIMIT:       /* User reach UJOB_LIMIT of the queue */
@@ -399,33 +428,58 @@ lsfdrmaa_map_lsberrno( int _lsberrno )
 		case LSBE_NOLSF_HOST:       /* Request from non LSF host rejected */
 		case LSBE_OVER_LIMIT:       /* Over hard limit of queue */
 		case LSBE_USER_JLIMIT:      /* User has no enough job slots */
+#ifdef LSBE_CAL_DISABLED
 		case LSBE_CAL_DISABLED:     /* Calendar function is not enabled */
+#endif	/* LSBE_CAL_DISABLED */
 		case LSBE_HJOB_LIMIT:       /* User reach HJOB_LIMIT of the queue */
 		case LSBE_NO_ENOUGH_HOST:   /* Not enough hosts */
+#ifdef LSBE_CAL_MODIFY
 		case LSBE_CAL_MODIFY:       /* CONF used calendar cannot be modified */
+#endif	/* LSBE_CAL_MODIFY */
+#ifdef LSBE_JOB_CAL_MODIFY
 		case LSBE_JOB_CAL_MODIFY:   /* Job created calendar cannot be modified  */
+#endif	/* LSBE_JOB_CAL_MODIFY */
 		case LSBE_LOCK_JOB:         /* Lock the job so that it cann't be
 		                               resume by sbatchd */
+#ifdef LSBE_UNSUPPORTED_MC
 		case LSBE_UNSUPPORTED_MC:   /* Operation not supported for
 		                               a Multicluster job */
+#endif	/* LSBE_UNSUPPORTED_MC */
+#ifdef LSBE_PERMISSION_MC
 		case LSBE_PERMISSION_MC:    /* Operation permission denied for
 		                               a Multicluster job */
+#endif	/* LSBE_PERMISSION_MC */
 		case LSBE_OVER_RUSAGE:      /* Exceed q's resource reservation */
+#ifdef LSBE_CAL_USED
 		case LSBE_CAL_USED:         /* Delete a used calendar */
+#endif	/* LSBE_CAL_USED */
+#ifdef LSBE_CAL_CYC
 		case LSBE_CAL_CYC:          /* Cyclic calednar dependence */
+#endif	/* LSBE_CAL_CYC */
 		case LSBE_JOB_DEP:          /* Job dependence, not deleted immed */
+#ifdef LSBE_JGRP_EXIST
 		case LSBE_JGRP_EXIST:       /* The job group exists */
+#endif	/* LSBE_JGRP_EXIST */
+#ifdef LSBE_JGRP_NULL
 		case LSBE_JGRP_NULL:        /* The job group doesn't exist */
+#endif	/* LSBE_JGRP_NULL */
+#ifdef LSBE_JGRP_HASJOB
 		case LSBE_JGRP_HASJOB:      /* The group contains jobs */
+#endif	/* LSBE_JGRP_HASJOB */
 		case LSBE_JOB_SUSP:         /* Suspended job not supported */
 		case LSBE_JOB_FORW:         /* Forwarded job not suported */
 		case LSBE_JOB_EXIST:        /* The job exists */
+#ifdef LSBE_JGRP_HOLD
 		case LSBE_JGRP_HOLD:        /* Parent group is held */
+#endif	/* LSBE_JGRP_HOLD */
 		case LSBE_MOD_JOB_NAME:     /* Cannot change job name */
 			return FSD_ERRNO_DENIED_BY_DRM;
 
+
 		case LSBE_NO_JOBID:         /* No jobId can be used now */
+#ifdef LSBE_NO_HPART
 		case LSBE_NO_HPART:         /* No host partition in the system */
+#endif	/* LSBE_NO_HPART */
 		case LSBE_NO_GROUP:         /* No group defined in the system */
 		case LSBE_BAD_CHKLOG:       /* chklog is corrupted */
 		case LSBE_NO_HOST_GROUP:        /* No host group defined in the system */
@@ -461,21 +515,29 @@ lsfdrmaa_map_lsberrno( int _lsberrno )
 		case LSBE_BAD_RESREQ:       /* Bad resource requirement */
 		case LSBE_BAD_RESOURCE:     /* Bad resource name */
 		case LSBE_BAD_UGROUP:       /* Bad user group name */
+#ifdef LSBE_EXCEPT_SYNTAX
 		case LSBE_EXCEPT_SYNTAX:    /* Bad exception handler syntax */
+#endif	/* LSBE_EXCEPT_SYNTAX */
+#ifdef LSBE_EXCEPT_COND
 		case LSBE_EXCEPT_COND:      /* Bad exception condition specification */
+#endif	/* LSBE_EXCEPT_COND */
 		case LSBE_EXCEPT_ACTION:    /* Bad or invalid action specification */
 		case LSBE_BAD_HOST_SPEC:        /* bad host spec of run/cpu limits */
 		/* Error codes related to calendar: */
+#ifdef LSBE_BAD_CALENDAR
 		case LSBE_BAD_CALENDAR:     /* Bad calendar name */
 		case LSBE_NOMATCH_CALENDAR: /* No calendar found */
 		case LSBE_NO_CALENDAR:      /* No calendar in system */
 		case LSBE_BAD_TIMEEVENT:    /* Bad calendar time events */
 		case LSBE_CAL_EXIST:        /* Calendar exist already */
 		case LSBE_SYNTAX_CALENDAR:  /* Calendar syntax error */
+#endif	/* LSBE_BAD_CALENDAR */
 		/* Error codes related to event */
+#ifdef LSBE_BAD_EVENT
 		case LSBE_BAD_EVENT:        /* Bad event name */
 		case LSBE_NOMATCH_EVENT:    /* No event found */
 		case LSBE_NO_EVENT:         /* No event in system */
+#endif	/* LSBE_BAD_EVENT */
 			return FSD_ERRNO_INVALID_VALUE;
 
 		case LSBE_UNKNOWN_EVENT:    /* Unknown event in event log file */
@@ -512,18 +574,27 @@ lsfdrmaa_map_lsberrno( int _lsberrno )
 			                             now, op. will be retried. */
 			return FSD_ERRNO_TRY_LATER;
 
+#ifdef LSBE_INTERACTIVE_CAL
 		case LSBE_INTERACTIVE_CAL:   /* Calendar not allowed for interactive job */
+#endif	/* LSBE_INTERACTIVE_CAL */
 		case LSBE_INTERACTIVE_RERUN: /* Interactive job cannot be rerunnable */
 		case LSBE_PTY_INFILE:        /* PTY and infile specified */
 			return FSD_DRMAA_ERRNO_CONFLICTING_ATTRIBUTE_VALUES;
 
+#ifdef LSBE_JGRP_CTRL_UNKWN
 		case LSBE_JGRP_CTRL_UNKWN:  /* The unknown group control signal */
+#endif	/* LSBE_JGRP_CTRL_UNKWN */
 		case LSBE_JGRP_BAD:         /* Bad Job Group name */
+#ifdef LSBE_CAL_VOID
 		case LSBE_CAL_VOID:         /* Void calendar */
+#endif	/* LSBE_CAL_VOID */
+#ifdef LSBE_BAD_FRAME
 		case LSBE_BAD_FRAME:        /* Bad frame expression */
 		case LSBE_FRAME_BIG_IDX:    /* Frame index too long */
 		case LSBE_FRAME_BAD_IDX:    /* Frame index syntax error */
+#endif	/* LSBE_BAD_FRAME */
 		case LSBE_BAD_USER_PRIORITY: /* Bad user priority */
+		  /* should have at least one! */
 			return FSD_ERRNO_INVALID_VALUE;
 
 #if 0
@@ -724,16 +795,19 @@ case LSBE_ADRSV_EMPTY:             /*modification is rejected because trying to 
 case LSBE_ADRSV_SWITCHTYPE:        /*modification is rejected because switching AR type. */
 case LSBE_ADRSV_SYS_N:             /*modification is rejected because specifying -n for system AR. */
 case LSBE_ADRSV_DISABLE:           /* disable string is not valid. */
-#endif
+#endif	/* 0 */
 
 
+#ifndef OPENLAVA_VERSION
 		case LSBE_ADRSV_ID_UNIQUE:         /* Unique AR ID required */
 		case LSBE_BAD_RSVNAME:             /* Bad reservation name */
 		case LSBE_BAD_CHKPNTDIR:           /* The checkpoint directory
 		                                      is too long */
 		case LSBE_JOB_REQUEUE_BADEXCLUDE:
 			return FSD_ERRNO_INVALID_VALUE;
+#endif	/* !OPENLAVA_VERSION */
 
+#ifndef OPENLAVA_VERSION
 		case LSBE_ADVRSV_ACTIVESTART:      /* Cannot change the start time of an
 		                                      active reservation. */
 		case LSBE_ADRSV_ID_USED:           /* AR ID is refernced by a job */
@@ -745,13 +819,17 @@ case LSBE_ADRSV_DISABLE:           /* disable string is not valid. */
 		                                      specified hosts or host groups do
 		                                      not belong to the reservation */
 			return FSD_ERRNO_DENIED_BY_DRM;
+#endif	/* !OPENLAVA_VERSION */
 
+#ifndef OPENLAVA_VERSION
 		case LSBE_ADRSV_MOD_REMOTE:        /* Trying to modify in
 		                                      a remote cluster */
 		case LSBE_JOB_RUSAGE_EXCEED_LIMIT: /* Queue level limitation */
 		case LSBE_APP_RUSAGE_EXCEED_LIMIT: /* Queue level limitation */
 			return FSD_ERRNO_DENIED_BY_DRM;
+#endif	/* !OPENLAVA_VERSION */
 
+#ifndef OPENLAVA_VERSION
 		case LSBE_ADRSV_DISABLE_DATE:      /* Trying to disable for a date
 		                                      in the past */
 			return FSD_ERRNO_INVALID_VALUE;
@@ -766,6 +844,7 @@ case LSBE_ADRSV_DISABLE:           /* disable string is not valid. */
 		                                      must specify day for both
 		                                      start and end time */
 			return FSD_ERRNO_INVALID_ARGUMENT;
+#endif	/* !OPENLAVA_VERSION */
 
 		default:
 			return FSD_ERRNO_INTERNAL_ERROR;
@@ -819,34 +898,50 @@ lsfdrmaa_map_lserrno( int _lserrno )
 		case LSE_FORK:               /* Unable to fork child */
 		case LSE_PIPE:               /* Failed to setup pipe */
 		case LSE_ESUB:               /* esub/eexec file not found */
+#ifdef LSE_DCE_EXEC
 		case LSE_DCE_EXEC:           /* dce task exec fail */
+#endif	/* LSE_DCE_EXEC */
 		case LSE_NO_FILE:            /* cannot open file */
 		case LSE_BAD_CHAN:           /* bad communication channel */
 		case LSE_INTERNAL:           /* internal library error */
 		case LSE_PROTOCOL:           /* protocol error with server */
+#ifdef LSE_THRD_SYS
 		case LSE_THRD_SYS:           /* A thread system call failed (NT only)*/
+#endif	/* LSE_THRD_SYS */
 		case LSE_MISC_SYS:           /* A system call failed */
 		case LSE_RES_RUSAGE:         /* Failed to get rusage from RES */
 		case LSE_RES_PARENT:         /* res child Failed to contact parent */
+#ifdef LSE_SUDOERS_CONF
 		case LSE_SUDOERS_CONF:       /* lsf.sudoers file error */
+#endif	/* LSE_SUDOERS_CONF */
+#ifdef LSE_SUDOERS_ROOT
 		case LSE_SUDOERS_ROOT:       /* lsf.sudoers not owned by root */
+#endif	/* LSE_SUDOERS_ROOT */
 		case LSE_I18N_SETLC:         /* i18n setlocale failed */
 		case LSE_I18N_CATOPEN:       /* i18n catopen failed */
 		case LSE_I18N_NOMEM:         /* i18n malloc failed */
 		case LSE_NO_MEM:             /* Cannot alloc memory */
+#ifdef LSE_REGISTRY_SYS
 		case LSE_REGISTRY_SYS:       /* A registry system call failed (NT) */
+#endif	/* LSE_REGISTRY_SYS */
 		case LSE_FILE_CLOSE:         /* Close a NULL-FILE pointer */
+#ifdef LSE_LIMCONF_NOTREADY
 		case LSE_LIMCONF_NOTREADY:   /* LIM configuration is not ready yet */
+#endif	/* LSE_LIMCONF_NOTREADY */
 		case LSE_MASTER_LIM_DOWN:    /* for LIM_CONF master LIM down */
 		case LSE_MLS_INVALID:        /* invalid MLS label */
 		case LSE_MLS_CLEARANCE:      /* not enough clearance */
 		case LSE_MLS_DOMINATE:       /* require label not dominate */
+#ifdef LSE_GETCONF_FAILED
 		case LSE_GETCONF_FAILED:     /* Failed to get configuration
 		                              * information from hosts specified by
 		                              * the LSF_SERVER_HOSTS parameter in
 		                              * lsf.conf */
+#endif	/* LSE_GETCONF_FAILED */
+#ifdef LSE_TSSINIT
 		case LSE_TSSINIT:            /* Win32: terminal service not properly
 		                              * initialized */
+#endif	/* LSE_TSSINIT */
 #if 0
 		case LSE_DYNM_DENIED:        /* Dynamic addHost denied */
 		case LSE_EGOCONF:            /* unable to open ego.conf */
@@ -893,18 +988,22 @@ lsfdrmaa_map_lserrno( int _lserrno )
 		case LSE_LIM_IGNORE:         /* Operation ignored by LIM */
 		case LSE_LIM_ALOCKED:        /* LIM already locked */
 		case LSE_LIM_NLOCKED:        /* LIM was not locked. */
+#ifdef LSE_NO_LICENSE
 		case LSE_NO_LICENSE:         /* no software license for host */
+#endif	/* LSE_NO_LICENSE */
 		case LSE_MLS_RHOST:          /* reject by rhost.conf */
 			return FSD_ERRNO_DENIED_BY_DRM;
 
 		case LSE_RES_NOMORECONN:     /* RES is serving too many connections*/
 		case LSE_TOOMANYTASK:        /* the task table is full */
 		case LSE_NO_CHAN:            /* out of communication channels */
+#ifdef LSE_NO_CAL
 		case LSE_NO_CAL:             /* Win32: No more connections can be
 		                              * made to this remote computer at this
 		                              * time because there are already as
 		                              * many connections as the computer can
 		                              * accept. */
+#endif	/* LSE_NO_CAL */
 #ifdef LSE_LIC_OVERUSE
 		case LSE_LIC_OVERUSE:        /* In license overuse status */
 #endif
@@ -922,8 +1021,12 @@ lsfdrmaa_map_lserrno( int _lserrno )
 
 		case LSE_NLSF_HOST:          /* request from a non lsf host */
 		case LSE_EAUTH:              /* external authentication failed */
+#ifdef LSE_LOGON_FAIL
 		case LSE_LOGON_FAIL:         /* Failed to logon user (NT only) */
+#endif	/* LSE_LOGON_FAIL */
+#ifdef LSE_NO_PASSWD
 		case LSE_NO_PASSWD:          /* no password for user */
+#endif	/* LSE_NO_PASSWD */
 #ifdef LSE_BAD_PASSWD
 		case LSE_BAD_PASSWD:         /* User password incorrect */
 #endif
@@ -941,11 +1044,13 @@ lsfdrmaa_map_lserrno( int _lserrno )
 		case LSE_ACCEPT_SYS:         /* Failed in a accept system call */
 		case LSE_TIME_OUT:           /* communication timed out */
 		case LSE_LOSTCON:            /* Connection has been lost */
+#ifdef LSE_NO_NETWORK
 		case LSE_NO_NETWORK:         /* Win32: The network location cannot be
 		                              * reached. For information about
 		                              * network troubleshooting, see Windows
 		                              * Help. */
-			return FSD_ERRNO_DRM_COMMUNICATION_FAILURE;
+#endif	/* LSE_NO_NETWORK */
+		  return FSD_ERRNO_DRM_COMMUNICATION_FAILURE;
 	 }
 }
 

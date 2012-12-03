@@ -301,11 +301,13 @@ impl_native_add(
 #endif
 					 }
 				 }
+#ifdef SUB2_EXTSCHED
 				else
 				 {
 					req->options2 |= SUB2_EXTSCHED;
 					ASSIGN_ARG( req->extsched );
 				 }
+#endif
 				break;
 
 			case 'F':  /* -F file_limit */
@@ -321,15 +323,19 @@ impl_native_add(
 				break;
 			 }
 
+#ifdef SUB2_JOB_GROUP
 			case 'G':  /* -G user_group */
 				req->options |= SUB_USER_GROUP;
 				ASSIGN_ARG( req->userGroup );
 				break;
+#endif	/* SUB_USER_GROUP */
 
+#ifdef SUB2_JOB_GROUP
 			case 'g':  /* -g job_group_name */
 				req->options |= SUB2_JOB_GROUP;
 				ASSIGN_ARG( req->jobGroup );
 				break;
+#endif	/* SUB2_JOB_GROUP */
 
 			case 'i':  /* -i[s] input_file */
 				req->options |= SUB_IN_FILE;
@@ -463,11 +469,13 @@ impl_native_add(
 					req->sigValue = SIGTERM; /* TODO */
 					req->options = SUB_WINDOW_SIG;
 				 }
+#ifdef SUB2_SLA
 				else if( optlen == 3 )
 				 {
 					req->options2 |= SUB2_SLA;
 					ASSIGN_ARG( req->sla );
 				 }
+#endif	/* SUB2_SLA */
 				else if( optlen == 2 ) /* -sp */
 				 {
 					req->options2 |= SUB2_JOB_PRIORITY;
@@ -476,7 +484,9 @@ impl_native_add(
 				break;
 
 			case 'T':  /* -T thread_limit */
+#ifdef LSF_RLIMIT_THREAD
 				ASSIGN_INTARG( req->rLimits[LSF_RLIMIT_THREAD] );
+#endif	/* LSF_RLIMIT_THREAD */
 				break;
 
 			case 't':  /* -t [[month:]day:]hour:minute
@@ -485,13 +495,15 @@ impl_native_add(
 				req->termTime = lsfdrmaa_parse_datetime( argument );
 				break;
 			 }
-
 			case 'U':  /* -U reservation_id */
 			reservation_id:
+#ifdef SUB2_USE_RSV
 				req->options2 |= SUB2_USE_RSV;
 				ASSIGN_ARG( req->rsvId );
+#else
+                                do {} while (false);
+#endif	/* SUB2_USE_RSV */
 				break;
-
 			case 'u':
 				/* -ul
 				 *   Passes the current operating system user shell
@@ -553,16 +565,20 @@ impl_native_add(
 					req->options |= SUB_DEPEND_COND;
 					ASSIGN_ARG( req->dependCond );
 				 }
+#ifdef SUB2_WARNING_ACTION
 				else if( option[1] == 'a' )
 				 {
 					req->options2 |= SUB2_WARNING_ACTION;
 					ASSIGN_ARG( req->warningAction );
 				 }
+#endif	/* SUB2_WARNING_ACTION */
+#ifdef SUB2_WARNING_TIME_PERIOD
 				else
 				 {
 					req->options2 |= SUB2_WARNING_TIME_PERIOD;
 					req->warningTimePeriod = lsfdrmaa_parse_timedelta( argument );
 				 }
+#endif	/* SUB2_WARNING_TIME_PERIOD */
 				break;
 
 			case 'Z':
