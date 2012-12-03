@@ -16,3 +16,4 @@ config.guess
 config.sub
 ltmain.sh
 configure
+lsf_drmaa/native.c
