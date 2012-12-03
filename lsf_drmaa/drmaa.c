@@ -55,7 +55,7 @@ lsfdrmaa_get_version( fsd_drmaa_singletone_t *self,
 static const char *
 lsfdrmaa_get_DRM_system( fsd_drmaa_singletone_t *self )
 {
-	return _VERSION_STR_;
+	return VERSION;
 }
 
 static const char *
