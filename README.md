@@ -12,16 +12,20 @@ generation
 
 Prepare openlava
 
+``` bash
    $ cd /opt/openlava-2.0/include
    $ ln -s ../include lsf
    $ touch config.h
+```
 
 Clone openlava-drmaa and install
 
+``` bash
    $ git clone ...
    $ cd ...
    $ ./autogen.sh --prefix=/path/to/prefix --with-lsf-lib=/opt/openlava-2.0/lib --with-lsf-inc=/opt/openlava-2.0/include --with-lsf-static --enable-static
    $ make
+```
 
 Complain it doesn't compile! Keep calm there's no drama here (sic).
 
