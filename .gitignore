@@ -11,3 +11,7 @@ config.status
 libtool
 .libs
 *.la
+Makefile.in
+config.guess
+config.sub
+ltmain.sh
