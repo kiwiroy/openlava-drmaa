@@ -1,7 +1,8 @@
 ## openlava-drmaa
 
-A very young port of the FedStage DRMAA for LSF (see original README)
-to work with Openlava so YMMV.
+A very young port of the
+[FedStage](http://sourceforge.net/projects/lsf-drmaa/) DRMAA for LSF
+(see original README) to work with Openlava so YMMV.
 
 ## Dependencies
 
