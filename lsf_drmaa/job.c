@@ -232,7 +232,7 @@ lsfdrmaa_job_read_job_info( fsd_job_t *self, struct jobInfoEnt *job_info )
 		fsd_log_debug(( "\n  submitTime: %ld", job_info->submitTime ));
 		fsd_log_debug(( "\n  startTime: %ld", job_info->startTime ));
 		fsd_log_debug(( "\n  endTime: %ld", job_info->startTime ));
-		fsd_log_debug(( "\n  duration: %d", job_info->duration ));
+		/* fsd_log_debug(( "\n  duration: %d", job_info->duration )); */
 		fsd_log_debug(( "\n  cpuTime: %f", job_info->cpuTime ));
 		fsd_log_debug(( "\n  cwd: %s", job_info->cwd ));
 		fsd_log_debug(( "\n  fromHost: %s", job_info->fromHost ));
@@ -299,7 +299,7 @@ lsfdrmaa_job_read_job_info( fsd_job_t *self, struct jobInfoEnt *job_info )
 	self->cpu_usage = job_info->cpuTime;
 	self->mem_usage = max( self->mem_usage, 1024*job_info->runRusage.mem );
 	self->vmem_usage = max( self->vmem_usage, 1024*job_info->runRusage.swap );
-	self->walltime = 60*job_info->duration;
+	/*	self->walltime = 60*job_info->duration; */
 	self->n_execution_hosts = job_info->numExHosts;
 	if( self->execution_hosts == NULL  &&  job_info->exHosts != NULL )
 		self->execution_hosts
