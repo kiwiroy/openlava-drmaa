@@ -69,11 +69,11 @@ fi
 AC_MSG_RESULT([$with_lsf_lib$ax_lsf_msg])
 
 if test x$with_lsf_static != x; then
-	LSF_LIBS="${with_lsf_lib}/libbat.a ${with_lsf_lib}/liblsf.a"
+	LSF_LIBS="${with_lsf_lib}/liblsbatch.a ${with_lsf_lib}/liblsf.a"
 	AC_HAVE_LIBRARY([-ldl], [LSF_LIBS="$LSF_LIBS -ldl"])
 	LSF_LDFLAGS=""
 else
-	LSF_LIBS="-llsf -lbat"
+	LSF_LIBS="-llsf -llsbatch"
         LSF_LDFLAGS="-L${with_lsf_lib} -Wl,-R${with_lsf_lib}"
       
         case "$host_os" in
