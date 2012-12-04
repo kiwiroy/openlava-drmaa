@@ -403,17 +403,28 @@ fsd_job_set_get_all_job_ids( fsd_job_set_t *self )
 	fsd_mutex_lock( mutex );
 	TRY
 	 {
-		fsd_calloc( job_ids, self->n_jobs+1, char* );
-		for( i = 0;  i < self->tab_size;  i++ )
-			for( job = self->tab[ i ];  job;  job = job->next )
-				job_ids[ j++ ] = fsd_strdup( job->job_id );
-		fsd_realloc( job_ids, j+1, char* );
+	   fsd_calloc( job_ids, self->n_jobs+1, char* );
+	   for( i = 0;  i < self->tab_size;  i++ )
+	     {
+	       for( job = self->tab[ i ];  job;  job = job->next )
+		 {
+		   job_ids[ j++ ] = fsd_strdup( job->job_id );
+		 }
+	     }
+	   /* Why this realloc? */
+	   fsd_realloc( job_ids, j+1, char* ); 
 	 }
 	FINALLY
 	 {
 		fsd_mutex_unlock( mutex );
+		
 		if( fsd_exc_get() )
-			fsd_free_vector( job_ids );
+		  {
+		    fsd_log_warning(( "caught exception" ));
+		    fsd_log_warning(( fsd_exc_get() ));
+		    fsd_free_vector( job_ids );
+		    job_ids = NULL;
+		  }
 	 }
 	END_TRY
 

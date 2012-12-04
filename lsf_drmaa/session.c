@@ -246,15 +246,14 @@ lsfdrmaa_session_update_all_jobs_status( fsd_drmaa_session_t *self )
 	char **volatile all_job_ids = NULL;
 	volatile bool conn_lock = false;
 	struct jobInfoEnt **volatile job_info_array = NULL;
-	volatile int n_records;
+	volatile int n_records  = 0;
 
 	fsd_log_enter(( "" ));
 	TRY
 	 {
-		const char **job_iter;
-		int i;
+		const char **job_iter = NULL;
+		int i = 0;
 		fsd_job_t *volatile job = NULL;
-		char job_id_str[32];
 
 		all_job_ids = self->get_submited_job_ids( self );
 
@@ -267,24 +266,52 @@ lsfdrmaa_session_update_all_jobs_status( fsd_drmaa_session_t *self )
 
 		conn_lock = fsd_mutex_lock( &self->drm_connection_mutex );
 		n_records = lsb_openjobinfo( 0, NULL, NULL, NULL, NULL, ALL_JOB );
-		fsd_calloc( job_info_array, n_records, struct jobInfoEnt* );
-		for( i = 0;  i < n_records;  i++ )
-		 {
-			int more;
-			struct jobInfoEnt *job_info;
-			job_info = lsb_readjobinfo( &more );
-			if( job_info == NULL )
-				fsd_exc_raise_lsf( "lsb_readjobinfo" );
-			job_info_array[i] = lsfdrmaa_copy_job_info( job_info );
-			if( i+1+more != n_records )
-				fsd_log_warning(( "lsb_readjobinfo: invalid job count" ));
-		 }
+
+		switch (n_records)
+		  {
+		  case -1:
+		    {
+		      switch (lsberrno)
+			{
+			case 1:	/* No matching job found */
+			  /* do nothing*/
+			  break;
+			default:
+			  lsb_perror(fsd_asprintf("lsb_openjobinfo() failed - uncaught lsberrno (%d)", lsberrno));
+			  break;
+			}
+		    }
+		    break;
+		  default:
+		    {
+		      fsd_calloc( job_info_array, n_records, struct jobInfoEnt* );
+		      for( i = 0;  i < n_records;  i++ )
+			{
+			  struct jobInfoEnt *job_info = NULL;
+			  int more = 0;
+			  
+			  job_info = lsb_readjobinfo( &more );
+			  if ( job_info == NULL )
+			    {
+			      fsd_exc_raise_lsf( "lsb_readjobinfo" );
+			    }
+			  job_info_array[i] = lsfdrmaa_copy_job_info( job_info );
+			  if( i+1+more != n_records )
+			    {
+			      fsd_log_warning(( "lsb_readjobinfo: invalid job count" ));
+			    }
+			}
+		    } 
+		    break;
+		  }
+		
 		lsb_closejobinfo();
 		conn_lock = fsd_mutex_unlock( &self->drm_connection_mutex );
 
 		for( i = 0;  i < n_records;  i++ )
 		 {
 			struct jobInfoEnt *job_info = job_info_array[i];
+			char job_id_str[32];
 			int job_id, job_array_idx;
 			job_id = LSB_ARRAY_JOBID( job_info->jobId );
 			job_array_idx = LSB_ARRAY_IDX( job_info->jobId );
