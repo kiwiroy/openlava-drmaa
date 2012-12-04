@@ -17,3 +17,5 @@ config.sub
 ltmain.sh
 configure
 lsf_drmaa/native.c
+aclocal.m4
+config.h.in
