@@ -290,8 +290,10 @@ lsfdrmaa_dump_submit_req( struct submit *req )
 		fsd_log_debug(( "\n  projectName: %s", req->projectName ));
 	if( options & SUB_LOGIN_SHELL )
 		fsd_log_debug(( "\n  loginShell: %s", req->loginShell ));
+#ifndef OPENLAVA_VERSION
 	if( options & SUB_USER_GROUP )
 		fsd_log_debug(( "\n  userGroup: %s", req->userGroup ));
+#endif	/* !OPENLAVA_VERSION */
 	if( options2 & SUB2_JOB_PRIORITY )
 		fsd_log_debug(( "\n  userPriority: %d", req->userPriority ));
 #ifdef SUB2_USE_RSV
