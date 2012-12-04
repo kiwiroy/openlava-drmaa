@@ -34,4 +34,10 @@ Compiling openlava with CFLAGS=-fPIC helps the static
 compilation. Also make sure you specify a --prefix to
 autogen/configure.  The original code needs this.
 
+## See Also
+
+* Subversion repositories for [lsf-drmaa](http://apps.man.poznan.pl/trac/lsf-drmaa/browser) and [pbs-drmaa](http://apps.man.poznan.pl/trac/pbs-drmaa/browser)
+* [Openlava](http://www.openlava.org) and [Git](http://github.com/openlava/openlava)
+* [FedStage](http://sourceforge.net/projects/lsf-drmaa/)
+
 .
