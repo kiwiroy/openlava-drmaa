@@ -50,7 +50,12 @@ AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_PROG_LN_S
 
-AC_CHECK_PROGS([RAGEL], [ragel], [sh m4/missing-dev-prog.sh ragel])
+AC_ARG_VAR([RAGEL], [The location of ragel which can be found http://www.complang.org/ragel/])
+AC_CHECK_PROGS([RAGEL], [ragel], [false])
+if test "x$RAGEL" = "xfalse"; then
+   AC_MSG_ERROR([*** The program 'ragel' could not be found - Obtain from http://www.complang.org/ragel/])
+fi
+
 AX_DOCUTILS()
 if test x$RST2HTML = x; then
 	RST2HTML="sh m4/missing-dev-prog.sh docutils"

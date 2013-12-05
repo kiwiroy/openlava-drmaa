@@ -36,7 +36,8 @@ AC_DEFUN([AX_GPERF], [
 		else
 			abs_srcdir="`pwd`/$srcdir"
 		fi
-		GPERF="${abs_builddir}/scripts/gperf-fallback.sh"
+		dnl ${abs_builddir} -> ${abs_srcdir} as former is not init'd
+		GPERF="${abs_srcdir}/scripts/gperf-fallback.sh"
 		cat >$GPERF <<EOF
 #!/bin/sh
 cat >&2 <<MESSAGE
