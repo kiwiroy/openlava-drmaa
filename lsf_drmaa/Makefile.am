@@ -27,7 +27,7 @@ libdrmaa_la_SOURCES = \
  session.c session.h \
  util.c util.h
 
-libdrmaa_la_CPPFLAGS =  -I$(top_srcdir)/drmaa_utils/ -I$(top_srcdir)/lsd_drmaa @LSF_INCLUDES@
+libdrmaa_la_CPPFLAGS =  -I$(top_srcdir)/drmaa_utils/ -I$(top_srcdir)/lsf_drmaa @LSF_INCLUDES@
 if GCC
   libdrmaa_la_CPPFLAGS += -Wno-long-long
 endif
