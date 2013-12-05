@@ -60,8 +60,11 @@ AC_PROG_LN_S
 # code generation tools:
 AC_PROG_YACC
 AX_GPERF
-AC_CHECK_PROGS([RAGEL], [ragel], [sh m4/missing-dev-prog.sh ragel])
-
+AC_ARG_VAR([RAGEL], [The location of ragel which can be found http://www.complang.org/ragel/])
+AC_CHECK_PROGS([RAGEL], [ragel], [false])
+if test "x$RAGEL" = "xfalse"; then
+   AC_MSG_ERROR([*** The program 'ragel' could not be found - Obtain from http://www.complang.org/ragel/])
+fi
 # reStructuredText processing:
 AX_DOCUTILS
 # documentation generation:
