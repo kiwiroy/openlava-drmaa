@@ -41,8 +41,8 @@ Clone openlava-drmaa and install
 
 Complain it doesn't compile! Keep calm there's no drama here (sic).
 
-Compiling openlava with CFLAGS=-fPIC helps the static
-compilation. Also make sure you specify a --prefix to
+Compiling openlava with `CFLAGS=-fPIC` helps the static
+compilation. Also make sure you specify a `--prefix` to
 autogen/configure.  The original code needs this.
 
 ## See Also
